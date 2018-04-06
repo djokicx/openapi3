@@ -1,0 +1,1560 @@
+swagger: "2.0"
+info:
+  description: |
+    The Saferize API is organized around [REST](http://en.wikipedia.org/wiki/Representational_State_Transfer). Our API has predictable, resource-oriented URLs, and uses HTTP response codes to indicate API errors. We support [cross-origin resource sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing), allowing you to interact securely with our API from a client-side web application (though you should never expose your secret API key in any public website's client-side code). [JSON](http://www.json.org/) is returned by all API responses, including errors.
+
+    To make the API as explorable as possible, accounts have test mode and live mode API keys. There is No "switch" for changing between modes, just use the appropriate key to perform a live or test transaction.
+
+    Be sure to subscribe to Saferize's API announce mailing list to receive information on new additions and changes to Saferize's API.
+
+    The requests in the right sidebar are designed to work as is.
+  title: Saferize API
+  version: v1
+  termsOfService: https://saferize.com/terms-of-service/
+  contact:
+    email: dev@saferize.com
+tags:
+  - name: Developer
+    description: The `Developer` object represents the publisher. You can create, retrieve and update a developer. You may also view all the apps associated with the developer.
+  - name: App
+    description: This is an object representing an App that implements Saferize. You can retreive it to see it's many properties state, configuration, platforms etc.
+  # - name: Approval
+  #   description: An approval is created each time a child creates an account on the app. When this happens, the parent is given an opportunity to respond to the request by either approving or rejecting the app and validating relationship. Moreover, changes on the approval object by the parent reflect child's interaction with the app. The approval object is the intersection of Saferize (reword).
+  # - name: Family
+  #   description: Family methods provide access to information and operations relating to the Family. You can create, retrieve and update a family as well as list all it's members. You may also view all the validations of this family (such as Microtransaction, Email, SMS & Questionnaire)
+  # - name: Parent
+  #   description: The parent object administrates approval objects and child objects. You can create, retrieve and update a parent. You may also invite other parents, join them to the family and have them co-administrate approvals. 
+  # - name: Child
+  #   description: The child object represents a child who can be on many different approvals (correlating to the number of the apps the user is registered on). You can create, retrieve and update a child. You may also view all the approvals associated with the child.
+  - name: Session
+    description: Saferize Session
+  - name: Events
+    description: >
+      Use webhooks to be notified about events that happen on the Saferize platform.
+        * ApprovalCreatedEvent
+        * ApprovalStatusChangedEvent
+        * SessionTerminatedEvent
+        * AppUserFeaturesChangedEvent
+        * UsageTimerCreatedEvent
+        * UsageTimerTimeIsUpEvent
+        * UsageTimerPausedEvent
+        * UsageTimerUnPausedEvent
+
+DASDASDAS:
+   BearerAuth:
+     type: http
+     scheme: bearer
+     in: header
+     name: Authorization
+     scopes:
+      read: Grants read access
+      write: Grants write access
+securityDefinitions:
+   BearerAuth:
+     type: http
+     scheme: bearer
+     in: header
+     name: Authorization
+     scopes:
+      read: Grants read access
+      write: Grants write access
+paths:
+  /developer:
+    post:
+      tags:
+       - Developer
+      summary: Create a developer
+      description: The developer object is created when a new developer registers.
+      operationId: createDeveloper
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The new developer to be created
+          required: true
+          schema:
+            $ref: '#/definitions/Developer'
+      responses:
+        201:
+          description: The created developer
+          schema:
+            $ref: '#/definitions/Developer'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error'             
+  /developer/me:
+    get:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - Developer
+      summary: Retreieve the developer
+      description: Retrieves the developer object associated with the current session.
+      operationId: getDeveloper
+      responses:
+        200:
+          description: The developer object
+          schema:
+            $ref: '#/definitions/Developer'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+    put:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - Developer
+      summary: Update the developer
+      description: Updates the developer object associated with the current session. For security reasons, email cannot be updated through this endpoint.
+      operationId: updateDeveloper
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The developer to be updated to.
+          required: true
+          schema:
+            $ref: '#/definitions/Developer'
+            example:   # <-----
+              id: 1234
+              firstName: Jane
+              lastName: Doe
+              mobilePhone: 415-123-4567
+              company: Saferize
+              country: CA
+      responses:
+        200:
+          description: The updated developer.
+          schema:
+            $ref: '#/definitions/Developer'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+  /developer/me/apps:
+    get:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - Developer
+      summary: Retreieve developer's apps
+      description: Retrieves the apps associated with the developer.
+      operationId: getApps
+      responses:
+        200:
+          description: An array of apps
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/App'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+  /app:
+    post:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: createNewApp
+      summary: Create an app
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The new app to be created.
+          required: true
+          schema:
+            $ref: '#/definitions/App'
+      responses:
+        200:
+          description: The created app.
+          schema:
+            $ref: '#/definitions/App'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+  /app/{id}/key:
+    post:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+        - App
+      operationId: createKey
+      summary: Authenticate an app
+      description: Authenticate your app by using a public-key authentication. Your apps' keys carry many privileges, so be sure to keep your private key secret! Do not share your private keys in publicly accessible areas such GitHub, client-side code, and so forth.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: Public key
+          in: body
+          description: RSA public key.
+          required: true
+          schema:
+            type: string
+            example: -----BEGIN PUBLIC KEY-----
+              MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApofmdG+zACt1kHNlQciwyg3DuRW5za33FuBH+Zb8JoixthvtZNgee6+TkbCEWGmC9+cIJLTnialKdDUxlr5JpCtJnIpaiD++Ic5AINpE0zqhD4obR8eN7m5lcKGuNwShFxB/lc+IFHeEf5MkPcU+nSkJIV74F0XJIqNeewGxNayJ/bbIuOS4gMI0/lU18ua3OsLvVmJZyXObiYq3nMfSwWKuhfLqRMSSfICEDjnVAq3+F8/lxoqAxbC0gFZC3CdOjINgMJYr3XY6fo9oAkrt4yjSO9kAqQxaHiLqJ87gjjQEKaBzlejTM3/iJBamQUCF3VPZ3y7AoSCEWBEA5xhvXQIDAQAB
+              -----END PUBLIC KEY-----
+      responses:
+        201:
+          description: Returns the newly created access key if the public key was valid.
+          schema:
+            type: string
+            example: 031e58c6-a92c-453d-920d-33ad279392de
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error'             
+    put:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+        - App
+      operationId: rollKey
+      summary: Roll app authentication
+      description: If you believe your key is compromised, roll the key with a newly generated public key.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: Public key
+          in: body
+          description: RSA public key.
+          required: true
+          schema:
+            type: string
+            example: -----BEGIN PUBLIC KEY-----
+              MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApofmdG+zACt1kHNlQciwyg3DuRW5za33FuBH+Zb8JoixthvtZNgee6+TkbCEWGmC9+cIJLTnialKdDUxlr5JpCtJnIpaiD++Ic5AINpE0zqhD4obR8eN7m5lcKGuNwShFxB/lc+IFHeEf5MkPcU+nSkJIV74F0XJIqNeewGxNayJ/bbIuOS4gMI0/lU18ua3OsLvVmJZyXObiYq3nMfSwWKuhfLqRMSSfICEDjnVAq3+F8/lxoqAxbC0gFZC3CdOjINgMJYr3XY6fo9oAkrt4yjSO9kAqQxaHiLqJ87gjjQEKaBzlejTM3/iJBamQUCF3VPZ3y7AoSCEWBEA5xhvXQIDAQAB
+              -----END PUBLIC KEY-----
+      responses:
+        201:
+          description: Returns the access key if the public key was valid.
+          schema:
+            type: string
+            example: 031e58c6-a92c-453d-920d-33ad279392de
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+  /app/{id}:
+    get:
+      tags:
+       - App
+      operationId: getAppById
+      summary: Retrieve an app
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The identifier of the app to retrieve.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Returns the app object.
+          schema:
+            $ref: '#/definitions/App'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+    patch:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      summary: Update app time restrictions
+      tags:
+       - App
+      operationId: changeTimeRestriction
+      description: |
+        Time restrictions is a Saferize internal feature. If you would like parents to manage sessions, set time limits, and arbitrary pause/resume the app, you can set the time restrictions flag value to `ENABLED`. This is also the default value set upon [app creation](/#operation--app-post).
+
+        Otherwise, you may disable this feature by setting the time restrictions flag value to `DISABLED`.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: body
+          in: body
+          description: A JsonPatch operation `replace`.
+          required: true
+          schema:
+            $ref: '#/definitions/JsonPatch'
+            example:   # <-----
+              op: replace
+              path: /timeRestriction
+              value: ENABLED
+      responses:
+        200:
+          description: Returns the app object with an updated field.
+          schema:
+            $ref: '#/definitions/App'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+    patch:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      summary: Update app status
+      tags:
+       - App
+      operationId: changeStatus
+      description: |
+        When the app is created, the initial status is `DRAFT`. Once the app is configured, you may change the status to ```PUBLISHED``` via this endpoint. This will initialize the process of publishing the app, and the status will be `IN_REVIEW` until Saferize Customer Support approves it.
+
+        Firstly, you must [Authenticate the app](). In order to publish the app, all [App](/#/definitions/App) fields must be populated. In addition to this, the app must have have at least one [Screenshot](/#operation--app--id--screenshots-post) and one [Logo](/#operation--app--id--logo-post) uploaded. 
+
+        To delete the app, set the status to `DELETED`.
+
+        If you need any help throughout this process, please contact the Saferize Customer Support.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: body
+          in: body
+          description: A JsonPatch operation `replace`.
+          required: true
+          schema:
+            $ref: '#/definitions/JsonPatch'
+            example:   # <-----
+              op: replace
+              path: /status
+              value: PUBLISHED
+      responses:
+        200:
+          description: Returns the app object with an updated field.
+          schema:
+            $ref: '#/definitions/App'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+  /app/{id}/config:
+    put:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: updateAppConfig
+      summary: Update app configuration
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: The new app configuration.
+          required: true
+          schema:
+            $ref: '#/definitions/AppConfig'
+      responses:
+        200:
+          description: Returns the app configuration object if the update succeeded. This call will throw an error if update parameters are invalid.
+          schema:
+            $ref: '#/definitions/AppConfig'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+    get:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: getAppConfig
+      summary: Retrieve app configuration
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Returns the app configuration object if it exists on the system.
+          schema:
+            $ref: '#/definitions/AppConfig'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+  /app/{id}/logo:
+    post:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: uploadLogo
+      summary: Upload app logo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: A file to upload. The file should follow the specifications of RFC 2388 (which defines file transfers for the `multipart/form-data protocol`.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description:  Returns the image object if the upload succeeded.
+          schema:
+            $ref: '#/definitions/ImageUpload'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+    get:
+      tags:
+       - App
+      operationId: getLogo
+      summary: Retrieve app logo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Returns an array of image objects if they exist on the system.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ImageUpload'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+  /app/{id}/logo/{logoId}:
+    delete:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: deleteLogo
+      summary: Delete app logo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: logoId
+          description: Unique identifier for the image file to be deleted.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Returns `No Content` if the deletion was succeeded.
+  /app/{id}/screenshots:
+    post:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: uploadScreenshot
+      summary: Upload app screenshot
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: A file to upload. The file should follow the specifications of RFC 2388 (which defines file transfers for the `multipart/form-data protocol`.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns the image object if the upload succeeded.
+          schema:
+            $ref: '#/definitions/ImageUpload'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+    get:
+      tags:
+       - App
+      operationId: getScreenshots
+      summary: Retrieve app screenshots
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description:  Returns an array of image objects if they exist on the system.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ImageUpload'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+  /app/{id}/screenshots/{screenshotId}:
+    delete:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: deleteScreenshot
+      summary: Delete app screenshot
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: screenshotId
+          description: Unique identifier for the image file to be deleted.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description:  Returns `No Content` if the deletion was succeeded.
+  /app/{id}/plan:
+    get:
+      tags:
+       - App
+      operationId: getAppPlan
+      summary: Retrieve app plan
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Returns a subscription plan object if it exists on the system.
+          schema:
+            $ref: '#/definitions/SubscriptionPlan'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+
+  /app/{id}/features:
+    get:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: getAppFeatures
+      summary: Retrieve app features
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Returns an array of app feature objects if they exist on the system.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AppFeature'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error'               
+  /app/{id}/implementedFeatures:
+    put:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: setImplementedAppFeatures
+      summary: Set implemented features
+      description: The publicly visible list of implemented features is important for transparency. From this list you can specify which ones the parents can customize their experience when you [Set parental features](/#operation--app--id--parentalFeatures-put).
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: Implemented App Features
+          in: body
+          description: An array of implemented app features
+          schema:
+            $ref: '#/definitions/AppFeature/name' 
+            example:  [CHAT, ADVERTISING]
+      responses:
+        200:
+          description: Returns an array of app feature objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AppFeature'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error'               
+  /app/{id}/parentalFeatures:
+    put:
+      # Operation-specific security:
+      security:
+        - BearerAuth: [read, write]
+      tags:
+       - App
+      operationId: setParentalAppFeatures
+      summary: Set parental features
+      description: Parental features allow parents to customize their experience with these features. It's up to developer's discretion to determine which features they wish to expose. Please [Set implemented features](/#operation--app--id--implementedFeatures-put) before setting parental features.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Unique identifier for the app.
+          required: true
+          type: integer
+          format: int64
+        - name: Implemented App Features
+          in: body
+          description: An array of implemented app features
+          schema:
+            $ref: '#/definitions/AppFeature/name' 
+            example:  [CHAT, ADVERTISING]
+      responses:
+        200:
+          description: Returns an array of app feature objects. Bare in mind that the `parental` flag will be set to `false` initially.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/AppFeature'
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error'               
+  # /approval:
+  #   post:
+  #     tags:
+  #      - Approval
+  #     summary: Initiate an approval
+  #     description: To get parent consent to add a new app user (a child), a new approval object is created.
+  #     operationId: initiateApproval
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The new Approval
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Approval'
+  #     responses:
+  #       201:
+  #         description: Approval Created
+  #         schema:
+  #           $ref: '#/definitions/Approval'
+  #   get:
+  #     tags:
+  #      - Approval
+  #     operationId: getApprovals
+  #     summary: List all approvals
+  #     responses:
+  #       200:
+  #         description: Returns all approvals
+  #         schema:
+  #           type: array
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  #           items:
+  #             $ref: '#/definitions/Approval'
+  # '/approval/{id}':
+  #   get:
+  #     tags:
+  #      - Approval
+  #     operationId: getApprovalById
+  #     summary: Retrieve an approval
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         description: The identifier of the approval to retrieve.
+  #         required: true
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       200:
+  #         description: Return a single approval
+  #         schema:
+  #           $ref: '#/definitions/Approval'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  #   patch:
+  #     tags:
+  #      - Approval
+  #     operationId: changeApproval
+  #     summary: Update an approval
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         description: The approval Id to get
+  #         required: true
+  #         type: integer
+  #         format: int64
+  #       - name: body
+  #         in: body
+  #         description: A JsonPatch array with the fields to be changed. Current supported fields are ~ status, child, features
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/JsonPatch'
+  #           example:   # <-----
+  #             op: replace
+  #             path: /status
+  #             value: APPROVED
+  #     responses:
+  #       200:
+  #         description: Return the changed approval
+  #         schema:
+  #           $ref: '#/definitions/Approval'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # '/approval/token/{token}':
+  #   get:
+  #     tags:
+  #      - Approval
+  #     operationId: getApprovalByToken
+  #     summary: Retrieve an approval via token
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - name: token
+  #         in: path
+  #         description: The unique token assigned by the app to the approval.
+  #         required: true
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       200:
+  #         description: Return approval
+  #         schema:
+  #           $ref: '#/definitions/Approval'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # /family:
+  #   post:
+  #     tags:
+  #      - Family
+  #     summary: Create a family
+  #     description: The family object is created when a child becomes an app user by parent consent. The family members are associated with this object.
+  #     operationId: createFamily
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The new Family to be created
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Family'
+  #     responses:
+  #       201:
+  #         description: Return the new Family
+  #         schema:
+  #           $ref: '#/definitions/Family'
+  # /family/me:
+  #   get:
+  #     tags:
+  #      - Family
+  #     operationId: getFamily
+  #     summary: Retrieve your family
+  #     responses:
+  #       200:
+  #         description: Return the Family
+  #         schema:
+  #           $ref: '#/definitions/Family'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  #   put:
+  #     tags:
+  #      - Family
+  #     operationId: updateFamily
+  #     summary: Update your family
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The changed family.
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Family'
+  #     responses:
+  #       200:
+  #         description: The changed Family
+  #         schema:
+  #           $ref: '#/definitions/Family'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # /child:
+  #   get:
+  #     tags:
+  #      - Child
+  #     operationId: getChildren
+  #     summary: Get all children members of the family
+  #     responses:
+  #       200:
+  #         description: Returns an array of Child
+  #         schema:
+  #           type: array
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  #           items:
+  #             $ref: '#/definitions/Child'
+  #   post:
+  #     tags:
+  #      - Child
+  #     operationId: createChild
+  #     summary: Creates a new Child
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The Child to be created.
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Child'
+  #     responses:
+  #       201:
+  #         description: The created Child
+  #         schema:
+  #           $ref: '#/definitions/Child'
+  # /child/{childId}:
+  #   get:
+  #     tags:
+  #      - Child
+  #     summary: Get a child via identifier
+  #     operationId: GetChildById
+  #     parameters:
+  #       - name: childId
+  #         in: path
+  #         required: true
+  #         description: The identifier of the child to retrieve.
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       200:
+  #         description: Returns the child
+  #         schema:
+  #           $ref: '#/definitions/Child'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  #   put:
+  #     tags:
+  #      - Child
+  #     summary: Update a child via identifier
+  #     operationId: updateChild
+  #     parameters:
+  #       - name: childId
+  #         in: path
+  #         required: true
+  #         description: Unique identifier for the child.
+  #         type: integer
+  #         format: int64
+  #       - in: body
+  #         name: body
+  #         description: The Child to be updated.
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Child'
+  #     responses:
+  #       200:
+  #         description: Returns the child
+  #         schema:
+  #           $ref: '#/definitions/Child'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # /parent:
+  #   post:
+  #     tags:
+  #     - Parent
+  #     summary: Creates a new Parent
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The parent to be created.
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Parent'
+  #     responses:
+  #       200:
+  #         description: Returns the new Parent
+  #         schema:
+  #           $ref: '#/definitions/Parent'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # /parent/{parentId}:
+  #   get:
+  #     tags:
+  #     - Parent
+  #     summary: Gets a Parent by Id
+  #     operationId: getParentById
+  #     parameters:
+  #       - name: parentId
+  #         in: path
+  #         required: true
+  #         description: Unique identifier for the parent.
+  #         type: integer
+  #         format: int64
+  #     responses:
+  #       200:
+  #         description: Parent
+  #         schema:
+  #           $ref: '#/definitions/Parent'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  # /parent/me:
+  #   put:
+  #     tags:
+  #     - Parent
+  #     summary: Change the Parent
+  #     operationId: UpdateParent
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         description: The Parent to be updated.
+  #         required: true
+  #         schema:
+  #           $ref: '#/definitions/Parent'
+  #     responses:
+  #       200:
+  #         description: Returns the changed Parent
+  #         schema:
+  #           $ref: '#/definitions/Parent'
+        # On error:
+        #   description: Please refer to the `Error` object for the list of possible errors
+        #   $ref: '#/definitions/Error' 
+
+  /session:
+    post:
+      tags:
+      - Session
+      summary: Creates a new Session
+      operationId: createSession
+      requestBody:
+        required: true
+        description: Identifies the session to be created
+        content:
+          application/json:
+            schema:
+              properties:
+                accessKey:
+                  type: string
+                  description: The accessKey or email for the user
+                secretKey:
+                  type: string
+                  description: The secretKey or password for the user
+      responses:
+        201:
+          description: The new Session
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+                    description: The Session Token
+                  subject:
+                    type: object
+                    description: The Subject (Parent) that created this session
+                  signatureCode:
+                    type: string
+                    description: The signature to be used on subsequent calls
+        On error:
+          description: Please refer to the `Error` object for the list of possible errors
+          $ref: '#/definitions/Error' 
+responses:
+  NotFound:
+    description: The specified resource was not found
+    schema:
+      $ref: "#/definitions/Error"
+  Unauthorized:
+    description: Unauthorized Not found
+    schema:
+      $ref: "#/definitions/Error"
+
+definitions:
+    Family:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the family returned by the system.
+          example: 12345
+        name:
+          type: string
+          description: The family name
+          example: Smith
+    App:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the app returned by the system.
+          example: 1
+        name:
+          type: string
+          description: The name of the app.
+          example: Saferize Example
+        platforms:
+          type: array
+          description: An array of enums that specify what platforms are supported by this app.
+          items:
+            type: string
+          enum:
+            - ANDROID
+            - IOS
+            - WINDOWS
+            - MAC_OS
+            - LINUX
+            - APPLE_TV
+            - ANDROID_TV
+            - APPLE_WATCH
+            - ANDROID_WATCH
+            - XBOX
+            - NINTENDO
+            - PLAYSTATION
+          example: [ANDROID, IOS]
+        category:
+          description: One of the predifned values indicating the category of the app.     
+          type: string
+          enum:
+            - GAME
+            - MEDIA
+          example: GAME
+        timeRestriction:
+          type: string
+          description: On/Off flag for enabling/disabling time restrictions on the app.
+          enum:
+            - ENABLED
+            - DISABLED
+          example: ENABLED
+        status:
+          type: string
+          description: Current lifecycle status of the app. Please read more on the requirements for publishing the app.
+          enum:
+            - DRAFT
+            - PUBLISHED
+            - DELETED
+          example: PUBLISHED
+        description:
+          type: string
+          description: A description of the app.
+          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        urlName:
+          type: string
+          description: The partial url name of this app on Saferize.
+        details:
+          type: array
+          description: Features implemented on the app.
+          items:
+            type: string
+          enum:
+            - SOCIAL_INTERACTION
+            - IN_APP_PURCHASES
+            - ADVERTISING
+            - PAID_APP
+            - SUBSCRIPTION
+          example: [SOCIAL_INTERACTION, IN_APP_PURCHASES]
+        email:
+          type: string
+          description: The app developer's email.
+          example: developer@example.com
+    Parent:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - family
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the parent returned by the system.
+          example: 123456
+        firstName:
+          type: string
+          description: First Name
+          example: John
+        lastName:
+          type: string
+          description: Last Name
+          example: Smith
+        mobilePhone:
+          type: string
+          format: phone
+          description: >-
+            Mobile Phone. The format should be XXXYYYZZZZ (no dashes or
+            parenthesis)
+          example: 41512345678
+        family:
+          $ref: '#/definitions/Family'
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+    Child:
+      type: object
+      required:
+        - id
+        - firstName
+        - family
+        - gender
+        - birthDate
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the child returned by the system.
+          example: 1234567
+        firstName: 
+          type: string
+          description: Child's first name
+          example: Sofia
+        lastName:
+          type: string
+          description: Child's last Name
+          example: Smith
+        birthDate:
+          description: The childs date of birth
+          type: string
+          format: date
+          example: 2009-01-23
+        family:
+          $ref: '#/definitions/Family'
+        gender:
+          description: The child's gender
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+            - UNKNOWN
+          example: FEMALE
+    Developer:
+      type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - mobilePhone
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the developer returned by the system.
+          example: 1234
+        firstName:
+          type: string
+          description: Developer's first name.
+          example: Jane
+        lastName:
+          type: string
+          description: Developer's last name.
+          example: Doe
+        email:
+          description: Developer's primary email address.
+          type: string
+          example: jane.doe@example.com
+        mobilePhone:
+          description: Developer's primary mobile phone number.
+          type: string
+          example: 415-123-4567
+        company:
+          description: Developer's company name.
+          type: string
+          example: Saferize
+        country:
+          description: The country in which the developer resides, or in which the company is legally established. This should be an ISO 3166-1 alpha-2 country code. For example, if you are in the United States and the business for which you're creating an account is legally represented in Canada, you would use `CA` as the country for the account being created.
+          type: string
+          example: CA
+    AppUser:
+      type: object
+      required:
+        - id
+        - token
+        - app
+        - child
+        - family
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The AppUser Id returned by the system
+          example: 123
+        token:
+          type: string
+          description: >-
+            A client token for the app. This is defined by the app and should be
+            unique per user of the app.
+          example: child_nickname_on_game_1
+        app:
+          $ref: '#/definitions/App'
+        child:
+          $ref: '#/definitions/Child'
+        family:
+          $ref: '#/definitions/Family'
+    Approval:
+      type: object
+      required:
+        - id
+        - appUser
+        - family
+        - statusTime
+        - createdTime
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The Approval Id returned by the system
+          example: 12
+        appUser:
+          $ref: '#/definitions/AppUser'
+        approvalParent:
+          $ref: '#/definitions/Parent'
+        family:
+          $ref: '#/definitions/Family'
+        statusTime:
+          type: string
+          format: date-time
+          description: The time and date of the last status change
+          example: 2017-11-09T14:23:00Z
+        createdTime:
+          type: string
+          format: date-time
+          description: The time and date when this approval was created
+          example: 2017-11-09T14:23:00Z
+        status:
+          description: The approval status
+          type: string
+          enum:
+            - PENDING
+            - NOTIFIED
+            - APPROVED
+            - REJECTED
+          example: APPROVED
+        parentEmail:
+          type: string
+          description: The email of the parent who received this request
+          example: parent@myfamily.com
+        parentMobilePhone:
+          type: string
+          description: The phone number of the parent who received this request
+          example: 4151234567
+    AppConfig:
+      type: object
+      properties:
+        webhookUrl:
+          type: string
+          description: Valid HTTPS endpoint for receiving webhooks.
+          example: https://example.saferize.com
+        autoPauseSessionsInterval:
+          type: integer
+          format: int64
+          description: Undefined.
+          example: 30
+        autoRejectWaitTime:
+          type: integer
+          format: int64
+          description: Time in seconds after which an unattended approval will be automatically rejected.
+          example: 259200
+        validatorName:
+          $ref: '#/definitions/Validator'
+    AppFeature:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the app feature returned by the system.
+          example: 12345678
+        appId:
+          type: integer
+          format: int64
+          description: Unique identifier for the app that this app feature is associated with.
+          example: 12
+        name:
+          type: string
+          description: The app feature's name, meant to be displayable to the customer.
+          enum:
+           - ADVERTISING,
+           - CHAT,
+           - COMMENTS,
+           - DATA_COLLECTION,
+           - IN_APP_PURCHASES,
+           - LOCATION_SHARING,
+           - PAID_APP,
+           - PUSH_NOTIFICATIONS,
+           - SOCIAL_INTERACTION,
+           - SUBSCRIPTION
+          example: CHAT
+        implemented:
+          type: boolean
+          example: true
+          description: Boolean flag indicating whether the feature is implemented.
+        parentPrivilege:
+          type: boolean
+          example: true
+          description: Boolean flag indicating whether the parents are allowed to turn off/on the feature.
+    SubscriptionPlan:
+      type: object
+      properties:
+        id: 
+          type: integer
+          format: int64
+          description: Unique identifier for the subscription plan returned by the system.
+          example: 123456
+        name: 
+          type: string
+          description: The plans’s name, meant to be displayable to the customer.
+          example: Platinum starter
+        billingCycle:
+          description: Specifies billing frequency.
+          type: string
+          enum:
+            - WEEKLY
+            - MONTHLY
+            - YEARLY
+          example: YEARLY
+        active:
+          type: boolean
+          description: Boolean flag representing whether the plan is active.
+          example: true
+        price:
+          type: number
+          format: float
+          description: The cost of the item as a positive float in the smallest currency unit (i.e. $2.99 will be represented as 299 cents).
+          example: 299      
+    ImageUpload:
+      type: object
+      properties:
+        id: 
+          type: integer
+          format: int64
+          description: Unique identifier for the image returned by the system.
+          example: 123456789
+        url: 
+          type: string
+          description: A read-only URL where the uploaded file can be accessed. 
+          example: https://s3.us-west-1.amazonaws.com/path/to/a/file.jpg"
+        createdTime:
+          type: string
+          description: Time at which the object was created. Measured in seconds since the Unix epoch.
+          example: 1522346229038
+        width:
+          type: integer
+          format: int64
+          description: The witdh in pixels of the image object.
+          example: 200
+        height:
+          type: integer
+          format: int64
+          description: The witdh in pixels of the image object.
+          example: 200
+    Validator:
+      type: string
+      enum:
+        - Microtransaction
+        - SMS
+      example: Microtransaction
+    JsonPatch:
+      type: object
+      properties:
+        op:
+          type: string
+          enum:
+            - add
+            - replace
+            - remove
+          description: >
+            Sort order:
+             * add - Ascending, from A to Z.
+             * replace - Descending, from Z to A. 
+          example: replace
+        path:
+          type: string
+          description: the field to be updated using JsonPath syntax
+          example: /status
+        value:
+          type: object
+    Error:
+      description: |
+        Saferize uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the `2xx` range indicate success. Codes in the `4xx` range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). Codes in the `5xx` range indicate an error with Saferize's servers (these are rare).
+      
+      properties:
+          message:
+            description: A human-readable message providing more details about the
+              error.
+            example: There is already an app with those attributes.
+          type:
+            type: string
+            example: com.saferize.core.shared.DuplicateEntityException
+      required:
+        operation--app-posttype
+      type: object
