@@ -39,23 +39,12 @@ tags:
         * UsageTimerTimeIsUpEvent
         * UsageTimerPausedEvent
         * UsageTimerUnPausedEvent
-
-DASDASDAS:
-   BearerAuth:
-     type: http
-     scheme: bearer
-     in: header
-     name: Authorization
-     scopes:
-      read: Grants read access
-      write: Grants write access
 securityDefinitions:
-   BearerAuth:
-     type: http
-     scheme: bearer
-     in: header
-     name: Authorization
-     scopes:
+  BearerAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+    scopes:
       read: Grants read access
       write: Grants write access
 paths:
@@ -82,9 +71,7 @@ paths:
           description: The created developer
           schema:
             $ref: '#/definitions/Developer'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error'             
+            
   /developer/me:
     get:
       # Operation-specific security:
@@ -100,9 +87,7 @@ paths:
           description: The developer object
           schema:
             $ref: '#/definitions/Developer'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
     put:
       # Operation-specific security:
       security:
@@ -135,9 +120,7 @@ paths:
           description: The updated developer.
           schema:
             $ref: '#/definitions/Developer'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
   /developer/me/apps:
     get:
       # Operation-specific security:
@@ -155,9 +138,6 @@ paths:
             type: array
             items:
               $ref: '#/definitions/App'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
   /app:
     post:
       # Operation-specific security:
@@ -183,9 +163,7 @@ paths:
           description: The created app.
           schema:
             $ref: '#/definitions/App'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
   /app/{id}/key:
     post:
       # Operation-specific security:
@@ -222,9 +200,7 @@ paths:
           schema:
             type: string
             example: 031e58c6-a92c-453d-920d-33ad279392de
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error'             
+            
     put:
       # Operation-specific security:
       security:
@@ -260,9 +236,7 @@ paths:
           schema:
             type: string
             example: 031e58c6-a92c-453d-920d-33ad279392de
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
   /app/{id}:
     get:
@@ -286,9 +260,7 @@ paths:
           description: Returns the app object.
           schema:
             $ref: '#/definitions/App'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
     patch:
       # Operation-specific security:
@@ -328,11 +300,9 @@ paths:
           description: Returns the app object with an updated field.
           schema:
             $ref: '#/definitions/App'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
 
-    patch:
+
+    put:
       # Operation-specific security:
       security:
         - BearerAuth: [read, write]
@@ -374,9 +344,7 @@ paths:
           description: Returns the app object with an updated field.
           schema:
             $ref: '#/definitions/App'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
   /app/{id}/config:
     put:
@@ -409,9 +377,7 @@ paths:
           description: Returns the app configuration object if the update succeeded. This call will throw an error if update parameters are invalid.
           schema:
             $ref: '#/definitions/AppConfig'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
     get:
       # Operation-specific security:
@@ -437,9 +403,7 @@ paths:
           description: Returns the app configuration object if it exists on the system.
           schema:
             $ref: '#/definitions/AppConfig'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
   /app/{id}/logo:
     post:
@@ -472,9 +436,7 @@ paths:
           description:  Returns the image object if the upload succeeded.
           schema:
             $ref: '#/definitions/ImageUpload'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
     get:
       tags:
@@ -499,9 +461,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/ImageUpload'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
   /app/{id}/logo/{logoId}:
     delete:
       # Operation-specific security:
@@ -562,9 +522,7 @@ paths:
           description: Returns the image object if the upload succeeded.
           schema:
             $ref: '#/definitions/ImageUpload'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
     get:
       tags:
@@ -589,9 +547,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/ImageUpload'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
   /app/{id}/screenshots/{screenshotId}:
     delete:
       # Operation-specific security:
@@ -643,9 +599,7 @@ paths:
           description: Returns a subscription plan object if it exists on the system.
           schema:
             $ref: '#/definitions/SubscriptionPlan'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 
   /app/{id}/features:
     get:
@@ -674,9 +628,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/AppFeature'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error'               
+              
   /app/{id}/implementedFeatures:
     put:
       # Operation-specific security:
@@ -711,9 +663,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/AppFeature'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error'               
+              
   /app/{id}/parentalFeatures:
     put:
       # Operation-specific security:
@@ -748,9 +698,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/AppFeature'
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error'               
+              
   # /approval:
   #   post:
   #     tags:
@@ -1115,9 +1063,7 @@ paths:
                   signatureCode:
                     type: string
                     description: The signature to be used on subsequent calls
-        On error:
-          description: Please refer to the `Error` object for the list of possible errors
-          $ref: '#/definitions/Error' 
+
 responses:
   NotFound:
     description: The specified resource was not found
@@ -1548,13 +1494,13 @@ definitions:
         Saferize uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the `2xx` range indicate success. Codes in the `4xx` range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). Codes in the `5xx` range indicate an error with Saferize's servers (these are rare).
       
       properties:
-          message:
-            description: A human-readable message providing more details about the
-              error.
-            example: There is already an app with those attributes.
-          type:
+        message:
+          description: A human-readable message providing more details about the
+            error.
+          example: There is already an app with those attributes.
+        type:
             type: string
             example: com.saferize.core.shared.DuplicateEntityException
       required:
-        operation--app-posttype
+        - type        
       type: object
