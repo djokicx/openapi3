@@ -41,12 +41,14 @@ tags:
         * UsageTimerUnPausedEvent
 securityDefinitions:
   BearerAuth:
-    type: apiKey
-    in: header
-    name: Authorization
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: https://example.com/oauth/authorize
+    tokenUrl: https://example.com/oauth/token
     scopes:
       read: Grants read access
       write: Grants write access
+      admin: Grants read and write access to administrative information
 paths:
   /developer:
     post:
@@ -654,7 +656,7 @@ paths:
           in: body
           description: An array of implemented app features
           schema:
-            $ref: '#/definitions/AppFeature/name' 
+            $ref: '#/definitions/AppFeature' 
             example:  [CHAT, ADVERTISING]
       responses:
         200:
@@ -689,7 +691,7 @@ paths:
           in: body
           description: An array of implemented app features
           schema:
-            $ref: '#/definitions/AppFeature/name' 
+            $ref: '#/definitions/AppFeature' 
             example:  [CHAT, ADVERTISING]
       responses:
         200:
@@ -1027,42 +1029,6 @@ paths:
         # On error:
         #   description: Please refer to the `Error` object for the list of possible errors
         #   $ref: '#/definitions/Error' 
-
-  /session:
-    post:
-      tags:
-      - Session
-      summary: Creates a new Session
-      operationId: createSession
-      requestBody:
-        required: true
-        description: Identifies the session to be created
-        content:
-          application/json:
-            schema:
-              properties:
-                accessKey:
-                  type: string
-                  description: The accessKey or email for the user
-                secretKey:
-                  type: string
-                  description: The secretKey or password for the user
-      responses:
-        201:
-          description: The new Session
-          content:
-            application/json:
-              schema:
-                properties:
-                  token:
-                    type: string
-                    description: The Session Token
-                  subject:
-                    type: object
-                    description: The Subject (Parent) that created this session
-                  signatureCode:
-                    type: string
-                    description: The signature to be used on subsequent calls
 
 responses:
   NotFound:
